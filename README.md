@@ -26,9 +26,9 @@ Access is provided via the SpaceAPIClient module, which exposes the following in
 
 
 ##Actual API Capabilities
-* /space [GET) :returns the spaceAPI JSON (see spaceState())
-* /door [GET, authenticated]: Opens the space door for 2 seconds (more like 5)
-* /open?state=<state in 'True','False' [PUT, authenticated]: Set the space open state
-* /board?type=<type in 'digital','analog'>&channel=<channel in [0-4] digital or [1-2] analog> [GET]: Read the board's inputs directly
+* ```/space``` [GET) :returns the spaceAPI JSON (see spaceState())
+* ```/door``` [GET, authenticated]: Opens the space door for 2 seconds (more like 5)
+* ```/open?state=<state in 'True','False'>``` [PUT, authenticated]: Set the space open state
+* ```/board?type=<type in 'digital','analog'>&channel=<channel in [0-4] digital or [1-2] analog>``` [GET]: Read the board's inputs directly
 
 
