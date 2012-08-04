@@ -12,7 +12,7 @@ class APIException(Exception):
     pass
 
 def strbool(string):
-    return string == "True"
+    return bool(string == "True")
 
 class client():
     def __init__(self,authpair=None,base=None):
@@ -61,7 +61,6 @@ class client():
             value = None
             raise ValueError("Door State Cannot Be Determined!%s"%r)
         return value
-
 
     def spaceState(self):
         r=self.get('/space')
