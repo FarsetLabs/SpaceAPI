@@ -13,11 +13,17 @@ Access is provided via the SpaceAPIClient module, which exposes the following in
 
 ##Example
 >from SpaceAPIClient import client
+
 >authpair=("username","TotallySecurePassword")
+
 >base="http://farbot:5000"
+
 >c=client(authpair=authpair,base=base)
+
 >doorClosed=c.doorClosedState()
+
 >print "Door is closed" if doorClosed else "Door is open"
+
 
 ##Actual API Capabilities
 * /space [GET) :returns the spaceAPI JSON (see spaceState())
