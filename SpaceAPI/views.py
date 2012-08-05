@@ -86,14 +86,23 @@ def api_board():
     value = None
     status = 400
     if request.method == 'GET':
-        try:
+        if len(request.args) == 2:
             ptype=request.args.get('type', '')
             channel=int(request.args.get('channel', ''))
-            (value,status,error)=board_getter(ptype=ptype,channel=channel)
+            try:
+                (value,status,error)=board_getter(ptype=ptype,channel=channel)
 
-        except Exception as err:
-            error = "%s"%err
+            except Exception as err:
+                error = "Error in board response:%s"%err
+                status = 400
+        elif len(request.args) == 0:
+            (value,status,error)=board_getter()
+        else:
+            value = None
+            error = "Error in board request:%s"%request.args
             status = 400
+
+
     elif authDB.isAuthenticated(request):
         # Client is authenticated
         value = "SuccessfulAuth"

@@ -70,7 +70,12 @@ def board_getter(ptype=None,channel=None):
     error = "Failed from board_getter:%s,%s"%(ptype,channel)
     value = None
     status = 400
-    if ptype in BOARD_GETS.keys():
+    if ptype is None and channel is None:
+        ready_board()
+        value = "%s"%app._board.digital_inputs
+        error = None
+        status = 200
+    elif ptype in BOARD_GETS.keys():
         ready_board()
         if ptype == 'digital':
             ## Return the current value

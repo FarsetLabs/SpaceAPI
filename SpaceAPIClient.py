@@ -69,8 +69,12 @@ class client():
         return value
 
     def openDoor(self):
-        r=self.authGet('/door/open')
-        return r.json
+        try:
+            r=self.authGet('/door/open')
+            r=r.json
+        except Exception as e:
+            r=e
+        return r
 
     def spaceState(self):
         r=self.get('/space')
