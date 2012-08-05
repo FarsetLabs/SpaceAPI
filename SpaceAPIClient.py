@@ -45,22 +45,32 @@ class client():
     def buttonDownState(self):
         r=self.get('/board',type='digital',channel=BIGREDINPUT)
         r=r.json
-        if 'value' in r.keys():
-            value = strbool(r['value'])
-        else:
-            value = None
-            raise ValueError("Button State Cannot Be Determined!%s"%r)
+        try:
+            if 'value' in r.keys():
+                value = strbool(r['value'])
+            else:
+                value = None
+                raise ValueError("Button State Cannot Be Determined!%s"%r)
+        except AttributeError as E:
+            raise ValueError("Button State Cannot Be Determined!%s:%s"%(r,E))
         return value
 
     def doorClosedState(self):
-        r=self.get('/board',type='digital',channel=DOORINPUT)
+        r=self.get('/door')
         r=r.json
-        if 'value' in r.keys():
-            value = strbool(r['value'])
-        else:
-            value = None
-            raise ValueError("Door State Cannot Be Determined!%s"%r)
+        try:
+            if 'value' in r.keys():
+                value = strbool(r['value'])
+            else:
+                value = None
+                raise ValueError("Door State Cannot Be Determined!%s"%r)
+        except AttributeError as E:
+            raise ValueError("Door State Cannot Be Determined!%s:%s"%(r,E))
         return value
+
+    def openDoor(self):
+        r=self.authGet('/door/open')
+        return r.json
 
     def spaceState(self):
         r=self.get('/space')
@@ -69,7 +79,7 @@ class client():
     def set_open_state(self,open_state):
         if isinstance(open_state,bool):
             open_state = str(open_state)
-        r=self.authPut('/open',state="%s"%open_state)
+        r=self.authPut('/space',state="%s"%open_state)
         new_state = str(r.json['value'])
         if new_state == open_state:
             return r

@@ -1,18 +1,14 @@
 from SpaceAPI import app
 from SpaceAPI.auth import authDB
 from SpaceAPI.settings import *
-from flask import jsonify, request
 from datetime import datetime as dt
-import time
-import collections
+from flask import jsonify, request
 from operator import attrgetter
 import json
 
-
 @app.route('/')
 def api_root():
-    return 'Welcome: Sorry that\'s an invalid API call. Go back to the docs'
-
+    return 'Welcome: Sorry that\'s an invalid API call. Go back to the <a href="https://github.com/FarsetLabs/SpaceAPI">docs</a>'
 
 @app.route('/space', methods = ['GET'])
 def api_space_status():
@@ -23,6 +19,14 @@ def api_space_status():
     return convert(resp)
 
 @app.route('/door', methods = ['GET'])
+def api_door_closed_state():
+    return digital_input_mask(DOORINPUT)
+
+@app.route('/button', methods = ['GET'])
+def api_button_down_state():
+    return digital_input_mask(BIGREDINPUT)
+
+@app.route('/door/open', methods = ['GET'])
 @authDB.requires_auth
 def api_open_door():
     """
@@ -41,37 +45,12 @@ def api_open_door():
     resp.status_code = 200
     return resp
 
-def sesame(message=None):
-    """
-    Internal Function to open/close the door
-    """
-    assert 0<=STRIKER_OP<=2, "Striker Output Out of Range"
-    if message is not None:
-        message = ": "+str(message)
-    else:
-        message = ""
-    if STRIKER_OP > 0:
-        ready_board()
-        try:
-            set_analogue=getattr(app._board,"set_analog%d"%STRIKER_OP) #Temp Function
-            set_analogue(255)
-            time.sleep(STRIKER_TIME)
-            set_analogue(0)
-            exit = ("Door Successfully Unlocked and Relocked",True)
-        except Exception as E:
-            exit=("Door Problem: %s"%E,False)
-        finally:
-            return exit
-    else:
-        exit = ("No Striker Configured, cannot continue",False)
-    return exit
-
-@app.route('/open', methods = ['PUT'])
+@app.route('/space', methods = ['PUT'])
 @authDB.requires_auth
 def api_open():
-    error = None
+    error = "Failed"
     value = None
-    status = 200
+    status = 400
     try:
         config=json.load(open(JSON_FILE,'r'))
         state = request.args.get('state', '')
@@ -101,7 +80,6 @@ def api_open():
     resp.status_code = status
     return resp
 
-
 @app.route('/board', methods = ['GET','PUT'])
 def api_board():
     error = "Failed"
@@ -109,27 +87,11 @@ def api_board():
     status = 400
     if request.method == 'GET':
         try:
-            type=request.args.get('type', '')
+            ptype=request.args.get('type', '')
             channel=int(request.args.get('channel', ''))
-            if type in BOARD_GETS.keys():
-                ready_board()
-                if type == 'digital':
-                    value = app._board.digital_inputs[channel]
-                    app._board.set_digital_output(channel,value)
-                    error = None
-                    status = 200
-                elif type == 'analog':
-                    getter = attrgetter(app._board,"analog%d"%channel)
-                    value = getter
-                    error = None
-                    status = 200
-                else:
-                    error = "Invalid type and bad logic"
-                    status = 500
-            else:
-                error = "Invalid type"
-                status = 400
-        except ValueError as err:
+            (value,status,error)=board_getter(ptype=ptype,channel=channel)
+
+        except Exception as err:
             error = "%s"%err
             status = 400
     elif authDB.isAuthenticated(request):
@@ -150,36 +112,4 @@ def api_board():
     resp.status_code = status
     return resp
 
-def convert(data):
-    if isinstance(data, unicode):
-        return str(data)
-    elif isinstance(data, collections.Mapping):
-        return dict(map(convert, data.iteritems()))
-    elif isinstance(data, collections.Iterable):
-        return type(data)(map(convert, data))
-    else:
-        return data
-
-def ready_board():
-    try:
-        app._board.read()
-        app.logger.info("Board inputs:%s"%app._board.digital_inputs)
-    except BoardError as Err:
-        app.logger.error("Lost Board: %s, restarting"%Err)
-        app._board=k8055.Board()
-        app._board.display_counter=2
-        app._board.reset()
-        ready_board()
-
-def source_log(logger, request, msg):
-    """
-    Lazy way to format the logs to any request responded to with auth/source info
-    """
-    log_text=str(msg)
-    if hasattr(request,'authorization'):
-        username = request.authorization.get('username')
-        log_text+= " by %s"%username
-    source = request.remote_addr
-    log_text+= " from %s"%source
-    logger(log_text)
 
