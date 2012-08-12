@@ -19,6 +19,17 @@ def api_space_status():
     resp.status_code = 200
     return convert(resp)
 
+
+@app.route('/debug', methods = ['GET'])
+@authDB.requires_auth
+def api_space_debug():
+    # Query for the SpaceAPI standard JSON response from the statefile
+    content=json.load(open(JSON_FILE,'r'))
+    resp = jsonify(content)
+    resp.status_code = 200
+    return convert(resp)
+
+
 @app.route('/door', methods = ['GET'])
 def api_door_closed_state():
     return digital_input_mask(DOORINPUT)

@@ -7,6 +7,7 @@ import gevent
 STRIKER_OP=1
 STRIKER_TIME=2
 JSON_FILE="/opt/SpaceAPI/farsetlabs.json"
+AUTH_FILE="/dev/shm/auth.csv"
 BASE_URL = 'http://localhost:5000'
 DOORINPUT = 3 #CUSTOM VALUE FOR FARSET LABS
 BIGREDINPUT = 4 #CUSTOM VALUE FOR FARSET LABS

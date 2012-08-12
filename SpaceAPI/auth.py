@@ -1,6 +1,8 @@
 from functools import wraps
 from flask import request
 import authdigest
+from SpaceAPI.settings import *
+
 class FlaskRealmDigestDB(authdigest.RealmDigestDB):
     """
     Flask Authentication DB for HTTP Digest Authentication
@@ -16,6 +18,4 @@ class FlaskRealmDigestDB(authdigest.RealmDigestDB):
         return decorated
 
 #Initialise Auth DB with Test Value for now.
-authDB = FlaskRealmDigestDB('MyAuthRealm')
-authDB.add_user('farbot', 'testing')
-
+authDB = FlaskRealmDigestDB('SpaceAPI', file='/opt/SpaceAPI/auth.json')

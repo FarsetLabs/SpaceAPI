@@ -36,6 +36,9 @@ import os
 import weakref
 import hashlib
 import werkzeug
+import json
+from SpaceAPI import app
+log = app.logger
 
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 #~ Realm Digest Credentials Database
@@ -52,10 +55,36 @@ class RealmDigestDB(object):
                      default is 'md5'
     """
 
-    def __init__(self, realm, algorithm='md5'):
-        self.realm = realm
+    def __init__(self, realm, algorithm='md5', file=None):
         self.alg = self.newAlgorithm(algorithm)
-        self.db = self.newDB()
+        self.realm = realm
+        import getpass
+        log.error("Executing as %s"%getpass.getuser())
+
+        if file is None:
+            self.file = False # Passed None
+            log.error("No Filename, not storing db")
+        elif os.path.exists(file):
+            if os.access(file,os.W_OK):
+                self.file = file # Use existing file
+                log.error("Using Existing Auth DB:%s"%file)
+            else:
+                self.file=False
+                log.error("File Exists but is not writable")
+        elif os.path.exists(os.path.dirname(file)):
+            if os.access(os.path.dirname(file),os.W_OK):
+                open(file,'w').close() #touch
+                self.file = file # Make New File
+                log.error("Generating New Auth DB:%s"%file)
+            else:
+                self.file = False
+                log.error("Directory Exists but is not writable:%s"%file)
+        else:
+            self.file = False # Catch All
+            log.error("No Filename, not storing db, cornercase: %s"%file)
+
+        self.db = self.newDB() # Can ovewrite both of the above
+
 
     @property
     def algorithm(self):
@@ -63,18 +92,27 @@ class RealmDigestDB(object):
 
     def toDict(self):
         r = {'cfg':{ 'algorithm': self.alg.algorithm,
-                'realm': self.realm},
+                     'realm': self.realm,
+                     'file': self.file},
             'db': self.db, }
         return r
+
     def toJson(self, **kw):
         import json
         kw.setdefault('sort_keys', True)
         kw.setdefault('indent', 2)
         return json.dumps(self.toDict(), **kw)
 
+    def update_filestore(self):
+        if self.file:
+            out = open(self.file,'w+')
+            out.write(self.toJson())
+            out.close
+
     def add_user(self, user, password):
         r = self.alg.hashPassword(user, self.realm, password)
         self.db[user] = r
+        self.update_filestore()
         return r
 
     def __contains__(self, user):
@@ -91,7 +129,22 @@ class RealmDigestDB(object):
     #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
     def newDB(self):
-        return dict()
+        if self.file is False:
+            return dict()
+        else:
+            str_data = open(self.file,'r+')
+            try:
+                data = json.load(str_data)
+                self.alg = self.newAlgorithm(data['cfg']['algorithm'])
+                self.realm = data['cfg']['realm']
+                db = dict(data['db'])
+            except ValueError:
+                db = dict()
+            finally:
+                str_data.close()
+        return db
+
+
     def newAlgorithm(self, algorithm):
         return DigestAuthentication(algorithm)
 
@@ -243,4 +296,6 @@ class DigestAuthentication(object):
 
 DigestAuthentication.addDigestHashAlg('md5', hashlib.md5)
 DigestAuthentication.addDigestHashAlg('sha', hashlib.sha1)
+DigestAuthentication.addDigestHashAlg('sha256', hashlib.sha256)
+
 
