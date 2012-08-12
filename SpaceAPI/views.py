@@ -11,6 +11,7 @@ def api_root():
     return 'Welcome: Sorry that\'s an invalid API call. Go back to the <a href="https://github.com/FarsetLabs/SpaceAPI">docs</a>'
 
 @app.route('/space', methods = ['GET'])
+@app.route('/space/', methods = ['GET'])
 def api_space_status():
     # Query for the SpaceAPI standard JSON response from the statefile
     content=json.load(open(JSON_FILE,'r'))
