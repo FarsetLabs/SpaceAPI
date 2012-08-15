@@ -123,7 +123,7 @@ def sesame(message=None):
     return exit
 
 
-def digital_input_mask(channel):
+def digital_input_mask(channel, negate=False):
     error = "Failed"
     value = None
     status = 400
@@ -131,6 +131,8 @@ def digital_input_mask(channel):
     try:
         ready_board()
         (value, status, error)= board_getter('digital',channel)
+        if negate:
+            (value, status, error) = (not value, status, error)
     except Exception as E:
         error = "%s"%E
 

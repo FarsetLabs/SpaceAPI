@@ -36,7 +36,7 @@ def api_door_closed_state():
 
 @app.route('/button', methods = ['GET'])
 def api_button_down_state():
-    return digital_input_mask(BIGREDINPUT)
+    return digital_input_mask(BIGREDINPUT, negate=True)
 
 @app.route('/door/open', methods = ['GET'])
 @authDB.requires_auth
@@ -45,19 +45,12 @@ def api_open_door():
     Open the hackerspace doors hal...
     """
     (exit_msg,successfully_unlocked) = sesame()
-    if successfully_unlocked:
-        log=app.logger.info
-    else:
-        log=app.logger.error
-    authdata=request.authorization
-    source = request.remote_addr
-
-    source_log(log,request,exit_msg)
+    source_log(app.logger.error,request,exit_msg)
     resp = jsonify({'response':exit_msg})
     resp.status_code = 200
     return resp
 
-@app.route('/space', methods = ['PUT'])
+@app.route('/space/update', methods = ['PUT'])
 @authDB.requires_auth
 def api_open():
     error = "Failed"
@@ -78,6 +71,8 @@ def api_open():
             indent=4,
             sort_keys=True
         )
+        status=200
+        error=None
     except Exception as err:
         error = "Error:%s"%err
 
