@@ -9,16 +9,11 @@ from gevent import killall
 #Logging
 handlers=[]
 handlers.append(TimedRotatingFileHandler('/dev/shm/SpaceAPI.log',when='D',interval=1))
-#handler = logging.FileHandler("/var/log/SpaceAPI.log")
 handlers.append(SysLogHandler())
 requests_logger = logging.getLogger('requests.packages.urllib3.connectionpool')
 requests_logger.setLevel(logging.CRITICAL)
 
 app = Flask(__name__)
-
-#principals = Principal(app)
-
-#open_state_permission = Permission(Need('open','space')))
 
 for handler in handlers:
     handler.setLevel(logging.DEBUG)
