@@ -4,6 +4,7 @@ from requests.auth import HTTPDigestAuth
 
 BIGREDINPUT = 4 #CUSTOM VALUE FOR FARSET LABS
 DOORINPUT = 3 #CUSTOM VALUE FOR FARSET LABS
+BASE_URL = 'http://localhost/spaceapi'
 
 class AuthenticationException(Exception):
     pass
@@ -43,7 +44,7 @@ class client():
             raise AuthenticationException
 
     def buttonDownState(self):
-        r=self.get('/board',type='digital',channel=BIGREDINPUT)
+        r=self.get('/button')
         r=r.json
         try:
             if 'value' in r.keys():
@@ -76,15 +77,25 @@ class client():
             r=e
         return r
 
-    def spaceState(self):
-        r=self.get('/space')
+    def spaceState(self,debug=False):
+        if debug:
+            r=self.authGet('/debug')
+        else:
+            r=self.get('/space')
+        return r.json
+
+    def board_status(self):
+        r=self.get('/board', type="digital")
         return r.json
 
     def set_open_state(self,open_state):
         if isinstance(open_state,bool):
             open_state = str(open_state)
-        r=self.authPut('/space',state="%s"%open_state)
-        new_state = str(r.json['value'])
+        r=self.authPut('/space/update',state="%s"%open_state)
+        try:
+            new_state = str(r.json['value'])
+        except Exception as err:
+            raise err("Returned Null Value, possible malformed request")
         if new_state == open_state:
             return r
         else:
