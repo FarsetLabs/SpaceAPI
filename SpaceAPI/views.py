@@ -87,11 +87,7 @@ def api_open_door():
     return resp
 
 @app.route('/space/update', methods = ['PUT'])
-<<<<<<< HEAD
-@authDB.requires_admin
-=======
 @authDB.requires_auth
->>>>>>> 078628b45bec134540d8e572902ca353e494fcb1
 def api_open():
     error = "Failed"
     value = None
