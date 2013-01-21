@@ -43,7 +43,7 @@ class client():
         else:
             raise AuthenticationException
 
-    def buttonDownState(self):
+    def isOpen(self):
         r=self.get('/button')
         r=r.json
         try:
