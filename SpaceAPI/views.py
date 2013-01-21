@@ -14,7 +14,6 @@ def api_root():
     return 'Welcome: Sorry that\'s an invalid API call. Go back to the <a href="https://github.com/FarsetLabs/SpaceAPI">docs</a>'
 
 # Login / out views
-
 @app.route('/space/', methods = ['GET'])
 @app.route('/space', methods = ['GET'])
 def api_space_status():
