@@ -5,9 +5,10 @@ import k8055
 import logging
 from logging.handlers import TimedRotatingFileHandler, SysLogHandler
 from gevent import killall
+
+#Logging
 handlers=[]
-handlers.append(TimedRotatingFileHandler('/var/log/SpaceAPI.log',when='D',interval=1))
-#handler = logging.FileHandler("/var/log/SpaceAPI.log")
+handlers.append(TimedRotatingFileHandler('/dev/shm/SpaceAPI.log',when='D',interval=1))
 handlers.append(SysLogHandler())
 requests_logger = logging.getLogger('requests.packages.urllib3.connectionpool')
 requests_logger.setLevel(logging.CRITICAL)
@@ -23,6 +24,7 @@ for handler in handlers:
     app.logger.addHandler(handler)
 
 app._board = k8055.Board()
+
 app.logger.info("Set Up; loading views")
 import SpaceAPI.views
 

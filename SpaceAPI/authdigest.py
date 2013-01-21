@@ -83,7 +83,7 @@ class RealmDigestDB(object):
             self.file = False # Catch All
             log.error("No Filename, not storing db, cornercase: %s"%file)
 
-        self.db = self.newDB() # Can ovewrite both of the above
+        (self.db, self.roles) = self.newDB() # Can ovewrite both of the above
 
 
     @property
@@ -94,7 +94,8 @@ class RealmDigestDB(object):
         r = {'cfg':{ 'algorithm': self.alg.algorithm,
                      'realm': self.realm,
                      'file': self.file},
-            'db': self.db, }
+            'db': self.db,
+            'roles': self.roles }
         return r
 
     def toJson(self, **kw):
@@ -109,9 +110,10 @@ class RealmDigestDB(object):
             out.write(self.toJson())
             out.close
 
-    def add_user(self, user, password):
+    def add_user(self, user, password, roles = None):
         r = self.alg.hashPassword(user, self.realm, password)
         self.db[user] = r
+        self.roles[user] = roles
         self.update_filestore()
         return r
 
@@ -138,17 +140,20 @@ class RealmDigestDB(object):
                 self.alg = self.newAlgorithm(data['cfg']['algorithm'])
                 self.realm = data['cfg']['realm']
                 db = dict(data['db'])
-            except ValueError:
+                roles = dict(data['roles'])
+            except ValueError as e:
+                log.error("Failed on Data Import, launching with no auth data: %s" %e )
                 db = dict()
+                roles = dict()
             finally:
                 str_data.close()
-        return db
+        return (db, roles)
 
 
     def newAlgorithm(self, algorithm):
         return DigestAuthentication(algorithm)
 
-    def isAuthenticated(self, request, **kw):
+    def isAuthenticated(self, request, role = None, **kw):
         authResult = AuthenticationResult(self)
         request.authentication = authResult
 
@@ -158,12 +163,19 @@ class RealmDigestDB(object):
         authorization.result = authResult
 
         hashPass = self[authorization.username]
+        rolesPass = self.roles.get(authorization.username)
         if hashPass is None:
-            return authResult.deny('unknown_user')
+            return authResult.deny('unknown_user:%s' % authorization.username)
         elif not self.alg.verify(authorization, hashPass, request.method, **kw):
-            return authResult.deny('invalid_password')
+            return authResult.deny('invalid_password:%s' % authorization.username)
+        # If a specific role is requested, check it
+        elif role is not None:
+            if rolesPass is None or role not in rolesPass:
+                return authResult.deny('invalid_role:%s' % authorization.username)
+            else:
+                return authResult.approve('role_success:%s' % authorization.username)
         else:
-            return authResult.approve('success')
+            return authResult.approve('success:%s' % authorization.username)
 
     challenge_class = werkzeug.Response
     def challenge(self, response=None, status=401):
@@ -210,6 +222,7 @@ class AuthenticationResult(object):
         self.authenticated = authenticated
         self.reason = reason
         self.status = 401
+        log.error(self)
         return self
 
     def approve(self, reason, authenticated=True):
@@ -218,6 +231,7 @@ class AuthenticationResult(object):
         self.authenticated = authenticated
         self.reason = reason
         self.status = 200
+        log.error(self)
         return self
 
     def challenge(self, response=None, force=False):

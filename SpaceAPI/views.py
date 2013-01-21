@@ -3,6 +3,9 @@ from SpaceAPI.auth import authDB
 from SpaceAPI.settings import *
 from datetime import datetime as dt
 from flask import jsonify, request
+from flask.ext.login import (LoginManager, current_user, login_required,
+                            login_user, logout_user, UserMixin, AnonymousUser,
+                            confirm_login, fresh_login_required)
 from operator import attrgetter
 import json
 
@@ -10,8 +13,10 @@ import json
 def api_root():
     return 'Welcome: Sorry that\'s an invalid API call. Go back to the <a href="https://github.com/FarsetLabs/SpaceAPI">docs</a>'
 
-@app.route('/space', methods = ['GET'])
+# Login / out views
+
 @app.route('/space/', methods = ['GET'])
+@app.route('/space', methods = ['GET'])
 def api_space_status():
     # Query for the SpaceAPI standard JSON response from the statefile
     content=json.load(open(JSON_FILE,'r'))
@@ -21,7 +26,7 @@ def api_space_status():
 
 
 @app.route('/debug', methods = ['GET'])
-@authDB.requires_auth
+@authDB.requires_admin
 def api_space_debug():
     # Query for the SpaceAPI standard JSON response from the statefile
     content=json.load(open(JSON_FILE,'r'))
@@ -29,14 +34,45 @@ def api_space_debug():
     resp.status_code = 200
     return convert(resp)
 
+@app.route('/admin/adduser', methods = ['GET'])
+@authDB.requires_admin
+def api_add_user():
+    error = "Failed"
+    value = None
+    status = 400
+    try:
+        username = request.args.get('username', '')
+        password = request.args.get('password', '')
+        if len(password) < 4:
+            raise Exception("Password too short")
+
+        app.logger.debug("Account requested for user %s with password length %d" % (username, len(password)))
+        authDB.add_user(username, password)
+        status=200
+        error=None
+    except Exception as err:
+        error = "Error:%s"%err
+
+    response = {
+        'value':"%s"%value,
+        'error':"%s"%error,
+        'request':"%s"%request.args
+    }
+
+    app.logger.debug(response)
+    resp = jsonify(response)
+    resp.status_code = status
+    return resp
+
+
 
 @app.route('/door', methods = ['GET'])
 def api_door_closed_state():
     return digital_input_mask(DOORINPUT)
 
 @app.route('/button', methods = ['GET'])
-def api_button_down_state():
-    return digital_input_mask(BIGREDINPUT, negate=True)
+def api_button_open_state():
+    return digital_input_mask(BIGREDINPUT)
 
 @app.route('/door/open', methods = ['GET'])
 @authDB.requires_auth
