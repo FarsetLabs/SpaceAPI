@@ -103,8 +103,6 @@ class client():
             raise APIException("Returned Value does not match PUT value:%s,%s"%(new_state,open_state))
 
     def update_poll(self):
-        if isinstance(open_state,bool):
-            open_state = str(open_state)
         r=self.authPut('/space/update')
         try:
 	    r=r.json()
