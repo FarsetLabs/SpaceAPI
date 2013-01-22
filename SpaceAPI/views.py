@@ -97,7 +97,7 @@ def api_open():
         state = request.args.get('state', None)
         if state is None:
 	    (state, status, error) = board_getter('digital',BIGREDINPUT)
-	    app.logger.error("State is not given; read %s from input"%str(state))
+	    app.logger.debug("State is not given; read %s from input"%str(state))
         app.logger.debug(request)
         state = (str(state) == "True") #Convert unicode true/false to bool
 	if state is None:
