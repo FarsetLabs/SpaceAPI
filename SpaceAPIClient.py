@@ -106,11 +106,7 @@ class client():
         r=self.authPut('/space/update')
         try:
 	    r=r.json()
-            new_state = str(r['value'])
-        except Exception as err:
+            return str(r['value'])
+	except Exception as err:
             raise err("Returned Null Value, possible malformed request")
-        if new_state == open_state:
-            return r
-        else:
-            raise APIException("Returned Value does not match PUT value:%s,%s"%(new_state,open_state))
 

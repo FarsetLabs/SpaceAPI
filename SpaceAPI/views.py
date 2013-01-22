@@ -51,6 +51,7 @@ def api_add_user():
         error=None
     except Exception as err:
         error = "Error:%s"%err
+	app.logger.error(error)
 
     response = {
         'value':"%s"%value,
@@ -112,6 +113,7 @@ def api_open():
         error=None
     except Exception as err:
         error = "Error:%s"%err
+	app.logger.error(error)
 
     response = {
         'value':"%s"%value,
@@ -138,12 +140,14 @@ def api_board():
 
             except Exception as err:
                 error = "Error in board response:%s"%err
+		app.logger.error(error)
                 status = 400
         elif len(request.args) == 0:
             (value,status,error)=board_getter()
         else:
             value = None
             error = "Error in board request:%s"%request.args
+	    app.logger.error(error)
             status = 400
 
 
