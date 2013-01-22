@@ -97,6 +97,7 @@ def api_open():
         state = request.args.get('state', None)
         if state is None:
 	    state = digital_input_mask(BIGREDINPUT)
+	    state = state.json()['value']
 	    app.logger.error("State is not given; read %s from input"%str(state))
         app.logger.debug(request)
         state = (str(state) == "True") #Convert unicode true/false to bool
