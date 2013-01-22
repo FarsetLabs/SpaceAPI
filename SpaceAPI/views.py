@@ -96,7 +96,7 @@ def api_open():
         config=json.load(open(JSON_FILE,'r'))
         state = request.args.get('state', None)
         if state is None:
-	    (state, status, error) = boardgetter('digital',BIGREDINPUT)
+	    (state, status, error) = board_getter('digital',BIGREDINPUT)
 	    app.logger.error("State is not given; read %s from input"%str(state))
         app.logger.debug(request)
         state = (str(state) == "True") #Convert unicode true/false to bool
