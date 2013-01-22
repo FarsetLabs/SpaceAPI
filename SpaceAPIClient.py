@@ -45,7 +45,7 @@ class client():
 
     def isOpen(self):
         r=self.get('/button')
-        r=r.json
+        r=r.json()
         try:
             if 'value' in r.keys():
                 value = strbool(r['value'])
@@ -58,7 +58,7 @@ class client():
 
     def doorClosedState(self):
         r=self.get('/door')
-        r=r.json
+        r=r.json()
         try:
             if 'value' in r.keys():
                 value = strbool(r['value'])
@@ -72,7 +72,7 @@ class client():
     def openDoor(self):
         try:
             r=self.authGet('/door/open')
-            r=r.json
+            r=r.json()
         except Exception as e:
             r=e
         return r
@@ -82,18 +82,19 @@ class client():
             r=self.authGet('/debug')
         else:
             r=self.get('/space')
-        return r.json
+        return r.json()
 
     def board_status(self):
         r=self.get('/board', type="digital")
-        return r.json
+        return r.json()
 
     def set_open_state(self,open_state):
         if isinstance(open_state,bool):
             open_state = str(open_state)
         r=self.authPut('/space/update',state="%s"%open_state)
         try:
-            new_state = str(r.json['value'])
+	    r=r.json()
+            new_state = str(r['value'])
         except Exception as err:
             raise err("Returned Null Value, possible malformed request")
         if new_state == open_state:
