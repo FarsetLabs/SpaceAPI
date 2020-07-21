@@ -1,9 +1,6 @@
 {
     "api": "0.13",
     "botname": "FarBot",
-    "cam": [
-        "http://unit1.farsetlabs.org.uk:8080"
-    ],
     "spacefed": {
         "spacenet": false,
         "spacesaml": false,
@@ -11,21 +8,20 @@
     },
     "contact": {
         "email": "admin@farsetlabs.org.uk",
+        "github":"https://github.com/FarsetLabs",
+        "twitter": "@farsetlabs",
         "facebook": "https://www.facebook.com/FarsetLabs",
-        "flickr": "http://www.flickr.com/groups/farset_labs/",
+        "slack": "http://slackin.farsetlabs.org.uk/",
+        "flickr": "http://www.flickr.com/groups/farset_labs",
+        "instagram":"https://www.instagram.com/farsetlabs",
         "irc": "irc://irc.freenode.net/#farsetlabs",
         "phone": "+448458694619",
-        "twitter": "@farsetlabs",
-        "wiki": "http://unit1.farsetlabs.org.uk/wiki/"
+        "discourse":"https://discourse.farsetlabs.org.uk"
     },
     "issue_report_channels": [
         "email",
         "twitter"
     ],
-    "icon": {
-        "closed": "http://unit1.farsetlabs.org.uk/img/closed.jpg",
-        "open": "http://unit1.farsetlabs.org.uk/img/open.jpg"
-    },
     "location": {
         "address": "Weavers Court, Linfield Industrial Estate, Belfast, BT125GH, UK",
         "lon": -5.94068,
@@ -33,7 +29,7 @@
     },
     "logo": "http://unit1.farsetlabs.org.uk/img/logo.png",
     "state": {
-        "lastchange": 1347024073,
+        "lastchange": 1333824073,
         "open": true
     },
     "space": "Farset Labs",
