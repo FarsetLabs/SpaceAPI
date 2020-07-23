@@ -7,7 +7,7 @@
         "spacephone": false
     },
     "contact": {
-        "email": "admin@farsetlabs.org.uk",
+        "email": "info@farsetlabs.org.uk",
         "github":"https://github.com/FarsetLabs",
         "twitter": "@farsetlabs",
         "facebook": "https://www.facebook.com/FarsetLabs",
@@ -23,7 +23,7 @@
         "twitter"
     ],
     "location": {
-        "address": "Weavers Court, Linfield Industrial Estate, Belfast, BT125GH, UK",
+        "address": "1 Weavers Court, Linfield Industrial Estate, Belfast, BT125GH, UK",
         "lon": -5.94068,
         "lat": 54.592813
     },
@@ -34,5 +34,5 @@
     },
     "space": "Farset Labs",
     "status": "Open",
-    "url": "http://www.farsetlabs.org.uk"
+    "url": "https://www.farsetlabs.org.uk"
 }
